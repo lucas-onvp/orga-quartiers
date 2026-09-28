@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
 import { decodeToken } from "@/lib/auth";
 import { getState } from "@/lib/db";
 import { getLocalGeoJSON, QUARTIERS_API_URL } from "@/lib/quartiers";
+import { getCookie } from "@/lib/cookies";
 import Gate from "@/components/Gate";
 import AppView from "@/components/AppView";
 
@@ -9,11 +9,11 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   // 1. Mot de passe ?
-  const gate = decodeToken(cookies().get("qt_gate")?.value);
+  const gate = decodeToken(await getCookie("qt_gate"));
   if (!gate) return <Gate mode="password" />;
 
   // 2. Identifiant ?
-  const user = decodeToken(cookies().get("qt_user")?.value);
+  const user = decodeToken(await getCookie("qt_user"));
   if (!user?.uid || !user?.name) return <Gate mode="name" />;
 
   // 3. Application

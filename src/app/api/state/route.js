@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { decodeToken } from "@/lib/auth";
 import { getState } from "@/lib/db";
+import { getCookie } from "@/lib/cookies";
 
 export async function GET() {
-  const user = decodeToken(cookies().get("qt_user")?.value);
+  const user = decodeToken(await getCookie("qt_user"));
   if (!user?.uid) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }

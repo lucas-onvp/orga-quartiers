@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { checkPassword, encodeToken } from "@/lib/auth";
+import { setCookie } from "@/lib/cookies";
 
 export async function POST(request) {
   let password = "";
@@ -17,7 +17,7 @@ export async function POST(request) {
     );
   }
 
-  cookies().set("qt_gate", encodeToken({ v: 1 }), {
+  await setCookie("qt_gate", encodeToken({ v: 1 }), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

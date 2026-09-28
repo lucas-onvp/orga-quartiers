@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { setCookie } from "@/lib/cookies";
 import { db } from "@/lib/db";
 import { encodeToken } from "@/lib/auth";
 import { normalizeName } from "@/lib/quartiers";
@@ -54,7 +54,7 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  cookies().set("qt_user", encodeToken({ uid: data.id, name: data.name }), {
+  await setCookie("qt_user", encodeToken({ uid: data.id, name: data.name }), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

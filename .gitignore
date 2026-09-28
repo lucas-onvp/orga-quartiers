@@ -1,7 +1,8 @@
 # Dependencies
 node_modules/
 
-# Environment files (keep .env.example tracked)
-.env
-.env.local
-.env.*.local
+# Build Artifacts & Next.js Cache
+.next/
+# Divers
+.DS_Store
+*.log
