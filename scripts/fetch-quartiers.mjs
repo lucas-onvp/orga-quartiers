@@ -4,10 +4,10 @@
 
 import { writeFile, mkdir } from "node:fs/promises";
 
-const URL =
+const GEOJSON_URL =
   "https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/quartiers-de-democratie-locale/exports/geojson?lang=fr&timezone=Europe%2FParis";
 
-const res = await fetch(URL);
+const res = await fetch(GEOJSON_URL);
 if (!res.ok) {
   console.error(`Échec du téléchargement : HTTP ${res.status}`);
   process.exit(1);

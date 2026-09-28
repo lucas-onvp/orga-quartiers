@@ -15,8 +15,20 @@ export const COLORS = {
 /** Couleur de la bordure des quartiers que TU as sélectionnés */
 export const MA_SELECTION_BORDURE = "#2563eb";
 
+/** Couleur du chiffre (compteur) affiché sur chaque quartier */
+export const COMPTEUR_TEXTES = {
+  unePersonne: "#7f1d1d",       // texte foncé sur rouge clair
+  plusieursPersonnes: "#ffffff" // texte blanc sur rouge foncé
+};
+
 export function couleurPour(nbPersonnes) {
   if (nbPersonnes <= 0) return COLORS.aucuneSelection;
   if (nbPersonnes === 1) return COLORS.unePersonne;
   return COLORS.plusieursPersonnes;
+}
+
+export function couleurTexteCompteur(nbPersonnes) {
+  return nbPersonnes === 1
+    ? COMPTEUR_TEXTES.unePersonne
+    : COMPTEUR_TEXTES.plusieursPersonnes;
 }
