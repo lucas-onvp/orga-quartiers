@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { MapContainer, TileLayer, GeoJSON, Marker } from "react-leaflet";
 import L from "leaflet";
-import { couleurPour } from "@/lib/colors";
+import { couleurPour, couleurTexteCompteur, MA_SELECTION_BORDURE } from "@/lib/colors";
 import { quartierId, quartierName } from "@/lib/quartiers";
 
 /** Centroid visuel : moyenne des points de l'anneau extérieur. */
@@ -38,7 +38,7 @@ export default function QuartierMap({ geojson, byQuartier, mine, onOpen }) {
     const n = (byQuartier[id] ?? []).length;
     const isMine = mine.has(id);
     return {
-      color: isMine ? "#2563eb" : "#ffffff",
+      color: isMine ? MA_SELECTION_BORDURE : "#ffffff",
       weight: isMine ? 3 : 1,
       fillColor: couleurPour(n),
       fillOpacity: 0.75,
@@ -75,9 +75,7 @@ export default function QuartierMap({ geojson, byQuartier, mine, onOpen }) {
             interactive={false}
             icon={L.divIcon({
               className: "q-count",
-              html: `<span style="background:${couleurPour(n)};color:${
-                n === 1 ? "#7f1d1d" : "#fff"
-              }">${n}</span>`,
+              html: `<span style="background:${couleurPour(n)};color:${couleurTexteCompteur(n)}">${n}</span>`,
               iconSize: [26, 26],
               iconAnchor: [13, 13],
             })}

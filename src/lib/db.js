@@ -16,7 +16,10 @@ export function db() {
   return client;
 }
 
-/** Renvoie { byQuartier: { [quartierId]: [noms...] }, mine: [quartierId...] } */
+/**
+ * Renvoie { byQuartier: { [quartierId]: [noms...] }, mine: [quartierId...] }.
+ * Les noms sont triés de façon insensible à la casse et aux accents.
+ */
 export async function getState(userId) {
   const { data, error } = await db()
     .from("selections")
@@ -29,6 +32,9 @@ export async function getState(userId) {
     (byQuartier[row.quartier_id] ??= []).push(row.user.name);
     if (userId && row.user_id === userId) mine.push(row.quartier_id);
   }
-  for (const list of Object.values(byQuartier)) list.sort();
+  const cle = (s) =>
+    s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  for (const list of Object.values(byQuartier))
+    list.sort((a, b) => cle(a).localeCompare(cle(b)));
   return { byQuartier, mine };
 }

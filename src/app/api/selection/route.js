@@ -19,14 +19,15 @@ export async function POST(request) {
   }
 
   const id = String(quartierIdInput ?? "");
-  // Les identifiants officiels sont des numéros
+  // Les identifiants officiels sont des numéros (validés en dur + whitelist
+  // ci-dessous à partir du GeoJSON embarqué) — pas d'injection possible.
   if (!/^\d{1,4}$/.test(id)) {
     return NextResponse.json(
       { error: "Identifiant de quartier invalide." },
       { status: 400 }
     );
   }
-  // Si le GeoJSON local est présent, on vérifie que le quartier existe
+  // Whitelist stricte : le quartier doit exister dans le dataset officiel
   const local = getLocalGeoJSON();
   if (local && !local.features.some((f) => quartierId(f) === id)) {
     return NextResponse.json(
@@ -36,9 +37,14 @@ export async function POST(request) {
   }
 
   if (action === "select") {
+    // Clé primaire (user_id, quartier_id) + upsert : un seul objet JSON
+    // paramétré par la lib Supabase, aucune concaténation SQL manuelle.
     const { error } = await db()
       .from("selections")
-      .upsert({ user_id: user.uid, quartier_id: id });
+      .upsert(
+        { user_id: user.uid, quartier_id: id },
+        { onConflict: "user_id,quartier_id" }
+      );
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   } else if (action === "deselect") {
     const { error } = await db()

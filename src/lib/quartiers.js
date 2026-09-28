@@ -1,11 +1,23 @@
-import fs from "fs";
-import path from "path";
-
 export const QUARTIERS_API_URL =
   "https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/quartiers-de-democratie-locale/exports/geojson?lang=fr&timezone=Europe%2FParis";
 
+/** Clé de normalisation pour l'unicité des identifiants :
+ *  minuscules + sans accents + espaces réduits ("Hélène" == "helene"). */
+export function normalizeName(name) {
+  return String(name)
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+// ── Fonctions ci-dessous : SERVEUR UNIQUEMENT (utilisent fs/path) ──
+const isServer = typeof window === "undefined";
+
 /** GeoJSON local (src/data/quartiers.geojson) ou null s'il est absent. */
 export function getLocalGeoJSON() {
+  if (!isServer) return null;
   try {
     const p = path.join(process.cwd(), "src", "data", "quartiers.geojson");
     return JSON.parse(fs.readFileSync(p, "utf8"));

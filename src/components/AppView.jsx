@@ -3,8 +3,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import QuartierModal from "./QuartierModal";
-import { COLORS, couleurPour } from "@/lib/colors";
-import { quartierList, quartierName } from "@/lib/quartiers";
+import { COLORS, MA_SELECTION_BORDURE, couleurPour, couleurTexteCompteur } from "@/lib/colors";
+import { quartierId, quartierList, quartierName } from "@/lib/quartiers";
+
+/** Normalise les id des propriétés du GeoJSON en chaîne (le dataset officiel
+ *  expose « quartier » comme nombre ; l'API renvoie des clés en texte). */
+function normalizeGeojsonIds(g) {
+  if (!g?.features) return g;
+  for (const f of g.features) {
+    if (f.properties && f.properties.quartier != null) {
+      f.properties = { ...f.properties, quartier: String(f.properties.quartier) };
+    }
+  }
+  return g;
+}
 
 const QuartierMap = dynamic(() => import("./QuartierMap"), {
   ssr: false,
@@ -18,7 +30,7 @@ export default function AppView({
   initialGeojson,
   apiUrl,
 }) {
-  const [geojson, setGeojson] = useState(initialGeojson);
+  const [geojson, setGeojson] = useState(() => normalizeGeojsonIds(initialGeojson));
   const [geoError, setGeoError] = useState(null);
   const [byQuartier, setByQuartier] = useState(initialByQuartier);
   const [mine, setMine] = useState(new Set(initialMine));
@@ -34,7 +46,7 @@ export default function AppView({
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
-      .then(setGeojson)
+      .then((g) => setGeojson(normalizeGeojsonIds(g)))
       .catch((e) =>
         setGeoError(
           `Impossible de charger les contours des quartiers (${e.message}). Relance « npm run fetch-quartiers » puis redéploie.`
@@ -73,7 +85,7 @@ export default function AppView({
 
   const quartiers = useMemo(() => quartierList(geojson), [geojson]);
   const openFeature = useMemo(
-    () => geojson?.features?.find((f) => String(f.properties?.quartier) === openId) ?? null,
+    () => geojson?.features?.find((f) => quartierId(f) === openId) ?? null,
     [geojson, openId]
   );
 
@@ -118,7 +130,7 @@ export default function AppView({
           <i style={{ background: COLORS.plusieursPersonnes }} /> 2+ personnes
         </span>
         <span>
-          <i className="ring" style={{ borderColor: "#2563eb" }} /> ma sélection
+          <i className="ring" style={{ borderColor: MA_SELECTION_BORDURE }} /> ma sélection
         </span>
       </div>
 
@@ -147,7 +159,7 @@ export default function AppView({
                     className="dot"
                     style={{
                       background: couleurPour(names.length),
-                      outline: isMine ? "2px solid #2563eb" : "none",
+                      outline: isMine ? `2px solid ${MA_SELECTION_BORDURE}` : "none",
                     }}
                   />
                   <span className="q-name">{q.name}</span>
@@ -157,7 +169,7 @@ export default function AppView({
                       className="badge"
                       style={{
                         background: couleurPour(names.length),
-                        color: names.length === 1 ? "#7f1d1d" : "#fff",
+                        color: couleurTexteCompteur(names.length),
                       }}
                     >
                       {names.length}
