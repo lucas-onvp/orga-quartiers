@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# Build Artifacts & Next.js Cache
+.next/
+# Divers
+.DS_Store
+*.log
